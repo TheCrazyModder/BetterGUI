@@ -40,7 +40,7 @@ public class ScreenHelper {
 
     public static final int BUTTON_HEIGHT = 20;
     public static final int BUTTON_PADDING = 10;
-    public static final int BUTTON_WIDTH = 200;
+    public static final int BUTTON_WIDTH = 150;
 
     public static int getWidth() {
         return MinecraftClient.getInstance().getWindow().getScaledWidth();
@@ -60,7 +60,7 @@ public class ScreenHelper {
 
     public static int getXlistOffset(int index) {
         int y = getCenterOffset((BUTTON_HEIGHT + BUTTON_PADDING)*index);
-        System.out.println("Index " + index + " Y " + y + " Height " + getHeight() + " ButtonH " + (BUTTON_HEIGHT+BUTTON_PADDING));
+        //System.out.println("Index " + index + " Y " + y + " Height " + getHeight() + " ButtonH " + (BUTTON_HEIGHT+BUTTON_PADDING));
         return y;
     }
 

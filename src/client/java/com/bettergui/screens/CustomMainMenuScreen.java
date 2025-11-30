@@ -35,42 +35,26 @@ public class CustomMainMenuScreen extends Screen {
                 new ScreenHelper.ButtonInfo(
                         "Singleplayer",
                         (btn) -> {
-                            this.client.setScreen(new SelectWorldScreen(this));
-                        },
-                        new ScreenHelper.ScreenPos(
-                                rightOffset,
-                                ScreenHelper.getXlistOffset(0)
-                        )
+                            this.client.setScreen(new CustomWorldSelectScreen(this));
+                        }
                 ),
                 new ScreenHelper.ButtonInfo(
                         "Multiplayer",
                         (btn) -> {
                             this.client.setScreen(new MultiplayerScreen(this));
-                        },
-                        new ScreenHelper.ScreenPos(
-                                rightOffset,
-                                ScreenHelper.getXlistOffset(1)
-                        )
+                        }
                 ),
                 new ScreenHelper.ButtonInfo(
                         "Settings",
                         (btn) -> {
                             this.client.setScreen(new OptionsScreen(this, MinecraftClient.getInstance().options));
-                        },
-                        new ScreenHelper.ScreenPos(
-                                rightOffset,
-                                ScreenHelper.getXlistOffset(2)
-                        )
+                        }
                 ),
                 new ScreenHelper.ButtonInfo(
                         "Quit",
                         (btn) -> {
                             this.client.scheduleStop();
-                        },
-                        new ScreenHelper.ScreenPos(
-                                rightOffset,
-                                ScreenHelper.getXlistOffset(3)
-                        )
+                        }
                 )
         };
 
