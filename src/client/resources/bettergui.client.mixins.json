@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "package": "com.bettergui.mixin.client",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "ScreenBackgroundOverride",
+    "ScreenSetMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+	}
+}
