@@ -5,7 +5,6 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.Text;
 
 import java.util.ArrayList;
-import java.util.List;
 
 public class ScreenHelper {
 
@@ -73,20 +72,22 @@ public class ScreenHelper {
         );
     }
 
+    public static ButtonWidget.Builder build(ButtonInfo info) {
+
+        return ButtonWidget.builder(
+                        Text.of(info.text),
+                        info.action
+                )
+                .size(BUTTON_WIDTH, BUTTON_HEIGHT)
+                .position(info.pos.x, info.pos.y);
+    }
+
     public static ArrayList<ButtonWidget> buildList(ButtonInfo[] infoList) {
 
         ArrayList<ButtonWidget> widgets = new ArrayList<>();
 
         for (ButtonInfo info : infoList) {
-            ButtonWidget widget = ButtonWidget.builder(
-                    Text.of(info.text),
-                    info.action
-            )
-                    .size(BUTTON_WIDTH, BUTTON_HEIGHT)
-                    .position(info.pos.x, info.pos.y)
-                    .build();
-
-            widgets.add(widget);
+            widgets.add(build(info).build());
         }
 
         return widgets;

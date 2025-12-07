@@ -35,7 +35,7 @@ public class CustomMainMenuScreen extends Screen {
                 new ScreenHelper.ButtonInfo(
                         "Singleplayer",
                         (btn) -> {
-                            this.client.setScreen(new CustomWorldSelectScreen(this));
+                            this.client.setScreen(new TempTestWoldScreen(this));
                         }
                 ),
                 new ScreenHelper.ButtonInfo(
