@@ -25,7 +25,6 @@ public class CustomWorldSelectScreen extends Screen{
     private static final Logger LOGGER = LogUtils.getLogger();
     public static final GeneratorOptions DEBUG_GENERATOR_OPTIONS = new GeneratorOptions("test1".hashCode(), true, false);
     protected final Screen parent;
-    //private final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this, 8 + 9 + 8 + 20 + 4, 60);
     @Nullable
     private ButtonWidget deleteButton;
     @Nullable
@@ -52,10 +51,7 @@ public class CustomWorldSelectScreen extends Screen{
 
     @Override
     protected void init() {
-
         this.clearChildren();
-
-        //this.searchBox = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 22, 200, 20, this.searchBox, Text.translatable("selectWorld.search"));
 
         this.searchBox = new TextFieldWidget(
                 this.textRenderer,
@@ -91,12 +87,10 @@ public class CustomWorldSelectScreen extends Screen{
         this.addDrawableChild(levelList);
         this.addDrawableChild(createButton);
 
-        //this.refreshWidgetPositions();
         this.worldSelected(null);
     }
 
     private void addButtons() {
-        //this.selectButton = ButtonWidget.builder(LevelSummary.SELECT_WORLD_TEXT, button -> levelList.getSelectedAsOptional().ifPresent(playAction)).position(0, 100).build();
         WorldListWidget levelList = this.levelList;
 
         this.selectButton = ScreenHelper.build(
@@ -106,8 +100,6 @@ public class CustomWorldSelectScreen extends Screen{
                         ScreenHelper.getScreenRightListPos(0)
                 )
         ).build();
-
-        //this.addDrawableChild(ButtonWidget.builder(Text.translatable("selectWorld.create"), button -> CreateWorldScreen.show(this.client, levelList::refresh)).build());
 
         this.editButton = ScreenHelper.build(
                 new ScreenHelper.ButtonInfo(
