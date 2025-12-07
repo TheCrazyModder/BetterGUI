@@ -45,6 +45,14 @@ public class ScreenHelper {
         return MinecraftClient.getInstance().getWindow().getScaledWidth();
     }
 
+    public static int getFullButtonWidth() {
+        return BUTTON_WIDTH+BUTTON_PADDING;
+    }
+
+    public static int getButtonHeightAndPadding() {
+        return BUTTON_HEIGHT+BUTTON_PADDING;
+    }
+
     public static int getHeight() {
         return MinecraftClient.getInstance().getWindow().getScaledHeight();
     }

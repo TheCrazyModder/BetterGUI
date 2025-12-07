@@ -28,14 +28,19 @@ public class ScreenBackgroundOverride {
 
         Screen screen = (Screen) (Object) this;
 
+        int mouse_move_multiplier = 3;
+
         if (client.world != null) {
             return;
         }
 
         AssetLoader.AssetImage background = AssetLoader.STATIC_BACKGROUND;
 
-        int screenW = MinecraftClient.getInstance().getWindow().getScaledWidth();
-        int screenH = MinecraftClient.getInstance().getWindow().getScaledHeight();
+        int rawWidth = MinecraftClient.getInstance().getWindow().getScaledWidth();
+        int rawHeight = MinecraftClient.getInstance().getWindow().getScaledHeight();
+
+        int screenW = rawWidth + mouse_move_multiplier;
+        int screenH = rawHeight + mouse_move_multiplier;
 
         int imgWidth = background.getWidth();
         int imgHeight = background.getHeight();
@@ -58,7 +63,21 @@ public class ScreenBackgroundOverride {
         int x = (screenW - drawW) / 2;
         int y = (screenH - drawH) / 2;
 
-        context.drawTexture(RenderPipelines.GUI_TEXTURED, background.getIdentifier(), x, y, 1.0f, 1.0f, drawW, drawH, drawW, drawH);
+        int mouseScaleX = (int)(mouseX / rawWidth);
+        int mouseScaleY = (int)(mouseY / rawHeight);
+
+        context.drawTexture(
+                RenderPipelines.GUI_TEXTURED,
+                background.getIdentifier(),
+                x + mouseScaleX,
+                y + mouseScaleY,
+                1.0f,
+                1.0f,
+                drawW,
+                drawH,
+                drawW,
+                drawH
+        );
 
         info.cancel();
     }

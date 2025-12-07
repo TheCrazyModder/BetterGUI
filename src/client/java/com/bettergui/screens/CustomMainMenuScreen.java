@@ -38,19 +38,13 @@ public class CustomMainMenuScreen extends Screen {
                 new ScreenHelper.ButtonInfo(
                         "Multiplayer",
                         (btn) -> {
-                            this.client.setScreen(new MultiplayerScreen(this));
+                            this.client.setScreen(new CustomMultiplayerScreen(this));
                         }
                 ),
                 new ScreenHelper.ButtonInfo(
                         "Settings",
                         (btn) -> {
                             this.client.setScreen(new OptionsScreen(this, MinecraftClient.getInstance().options));
-                        }
-                ),
-                new ScreenHelper.ButtonInfo(
-                        "Quit",
-                        (btn) -> {
-                            this.client.scheduleStop();
                         }
                 )
         };
@@ -60,6 +54,21 @@ public class CustomMainMenuScreen extends Screen {
         for (ButtonWidget button : buttons) {
             this.addDrawableChild(button);
         }
+
+        ButtonWidget quitButton = ScreenHelper.build(
+                new ScreenHelper.ButtonInfo(
+                        "Quit",
+                        (btn) -> {
+                            this.client.scheduleStop();
+                        },
+                        new ScreenHelper.ScreenPos(
+                                ScreenHelper.getRightOffset(ScreenHelper.getFullButtonWidth()),
+                                this.height - ScreenHelper.getButtonHeightAndPadding()
+                        )
+                )
+        ).build();
+
+        this.addDrawableChild(quitButton);
 
     }
     @Override

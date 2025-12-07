@@ -19,6 +19,7 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 
 import java.io.IOException;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 public class CustomWorldSelectScreen extends Screen{
@@ -44,6 +45,8 @@ public class CustomWorldSelectScreen extends Screen{
 
     int rightButtonSectionWidth = ScreenHelper.BUTTON_WIDTH + (ScreenHelper.BUTTON_PADDING * 2);
 
+    AtomicInteger listOffset;
+
     public CustomWorldSelectScreen(Screen parent) {
         super(Text.translatable("selectWorld.title"));
         this.parent = parent;
@@ -51,6 +54,9 @@ public class CustomWorldSelectScreen extends Screen{
 
     @Override
     protected void init() {
+
+        this.listOffset = new AtomicInteger(-2);
+
         this.clearChildren();
 
         this.searchBox = new TextFieldWidget(
@@ -97,7 +103,7 @@ public class CustomWorldSelectScreen extends Screen{
                 new ScreenHelper.ButtonInfo(
                         LevelSummary.SELECT_WORLD_TEXT.getString(),
                         button -> levelList.getSelectedAsOptional().ifPresent(playAction),
-                        ScreenHelper.getScreenRightListPos(0)
+                        ScreenHelper.getScreenRightListPos(listOffset.getAndIncrement())
                 )
         ).build();
 
@@ -105,7 +111,7 @@ public class CustomWorldSelectScreen extends Screen{
                 new ScreenHelper.ButtonInfo(
                         "Edit",
                         button -> levelList.getSelectedAsOptional().ifPresent(WorldListWidget.WorldEntry::edit),
-                        ScreenHelper.getScreenRightListPos(1)
+                        ScreenHelper.getScreenRightListPos(listOffset.getAndIncrement())
                 )
         ).build();
 
@@ -113,7 +119,7 @@ public class CustomWorldSelectScreen extends Screen{
                 new ScreenHelper.ButtonInfo(
                         "Delete",
                         button -> levelList.getSelectedAsOptional().ifPresent(WorldListWidget.WorldEntry::deleteIfConfirmed),
-                        ScreenHelper.getScreenRightListPos(2)
+                        ScreenHelper.getScreenRightListPos(listOffset.getAndIncrement())
                 )
         ).build();
 
@@ -121,7 +127,7 @@ public class CustomWorldSelectScreen extends Screen{
                 new ScreenHelper.ButtonInfo(
                         "Recreate",
                         button -> levelList.getSelectedAsOptional().ifPresent(WorldListWidget.WorldEntry::recreate),
-                        ScreenHelper.getScreenRightListPos(3)
+                        ScreenHelper.getScreenRightListPos(listOffset.getAndIncrement())
                 )
         ).build();
 
