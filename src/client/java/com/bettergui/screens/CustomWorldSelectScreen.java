@@ -1,128 +1,225 @@
 package com.bettergui.screens;
 
-import net.minecraft.client.gui.DrawContext;
-import net.minecraft.client.gui.Drawable;
-import net.minecraft.client.gui.Element;
+import com.mojang.logging.LogUtils;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.world.CreateWorldScreen;
 import net.minecraft.client.gui.screen.world.WorldListWidget;
-import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.gui.widget.TextFieldWidget;
-import net.minecraft.client.gui.widget.Widget;
+import net.minecraft.client.gui.widget.*;
+import net.minecraft.resource.DataConfiguration;
 import net.minecraft.text.Text;
+import net.minecraft.util.path.PathUtil;
+import net.minecraft.world.Difficulty;
+import net.minecraft.world.GameMode;
+import net.minecraft.world.GameRules;
+import net.minecraft.world.gen.GeneratorOptions;
+import net.minecraft.world.gen.WorldPresets;
+import net.minecraft.world.level.LevelInfo;
 import net.minecraft.world.level.storage.LevelSummary;
 import org.jetbrains.annotations.Nullable;
+import org.slf4j.Logger;
 
-import java.util.ArrayList;
-import java.util.Collection;
+import java.io.IOException;
 import java.util.function.Consumer;
 
-public class CustomWorldSelectScreen extends Screen {
-
-    Screen parent;
-
-    private WorldListWidget levelList;
-
+public class CustomWorldSelectScreen extends Screen{
+    private static final Logger LOGGER = LogUtils.getLogger();
+    public static final GeneratorOptions DEBUG_GENERATOR_OPTIONS = new GeneratorOptions("test1".hashCode(), true, false);
+    protected final Screen parent;
+    //private final ThreePartsLayoutWidget layout = new ThreePartsLayoutWidget(this, 8 + 9 + 8 + 20 + 4, 60);
+    @Nullable
+    private ButtonWidget deleteButton;
     @Nullable
     private ButtonWidget selectButton;
+    @Nullable
+    private ButtonWidget editButton;
+    @Nullable
+    private ButtonWidget recreateButton;
+    @Nullable
+    private ButtonWidget createButton;
+    @Nullable
+    protected TextFieldWidget searchBox;
+    @Nullable
+    private WorldListWidget levelList;
 
-    ArrayList<Drawable> elements = new ArrayList<>();
+    Consumer<WorldListWidget.WorldEntry> playAction = WorldListWidget.WorldEntry::play;
 
     int rightButtonSectionWidth = ScreenHelper.BUTTON_WIDTH + (ScreenHelper.BUTTON_PADDING * 2);
 
-    protected CustomWorldSelectScreen(Screen parent) {
-        super(Text.of("World Select"));
+    public CustomWorldSelectScreen(Screen parent) {
+        super(Text.translatable("selectWorld.title"));
         this.parent = parent;
     }
 
     @Override
-    public void init() {
-        elements.clear();
+    protected void init() {
 
-        Consumer<WorldListWidget.WorldEntry> consumer = WorldListWidget.WorldEntry::play;
+        this.clearChildren();
+
+        //this.searchBox = new TextFieldWidget(this.textRenderer, this.width / 2 - 100, 22, 200, 20, this.searchBox, Text.translatable("selectWorld.search"));
+
+        this.searchBox = new TextFieldWidget(
+                this.textRenderer,
+                ScreenHelper.getRightOffset(ScreenHelper.BUTTON_WIDTH+ScreenHelper.BUTTON_PADDING),
+                ScreenHelper.BUTTON_PADDING,
+                ScreenHelper.BUTTON_WIDTH,
+                ScreenHelper.BUTTON_HEIGHT,
+                Text.translatable("selectWorld.search")
+        );
+
+        this.searchBox.setChangedListener(search -> {
+            if (this.levelList != null) {
+                this.levelList.setSearch(search);
+            }
+        });
 
         this.levelList = new WorldListWidget.Builder(this.client, this)
-                .width(this.width - rightButtonSectionWidth)
-                .height(this.height)
-                .predecessor(this.levelList)
-                .selectionCallback(this::worldSelected)
-                .confirmationCallback(consumer)
-                .toWidget();
+                                .width(this.width - rightButtonSectionWidth)
+                                .height(this.height)
+                                .search(this.searchBox.getText())
+                                .predecessor(this.levelList)
+                                .selectionCallback(this::worldSelected)
+                                .confirmationCallback(playAction)
+                                .toWidget();
 
-        elements.add(this.levelList);
+        this.addButtons();
 
-        addButtons(consumer, this.levelList);
+        this.addDrawableChild(deleteButton);
+        this.addDrawableChild(selectButton);
+        this.addDrawableChild(editButton);
+        this.addDrawableChild(recreateButton);
+        this.addDrawableChild(searchBox);
+        this.addDrawableChild(levelList);
+        this.addDrawableChild(createButton);
 
-
-        for (Drawable drawable : elements) {
-            this.addDrawable(drawable);
-        }
-
-        this.refreshWidgetPositions();
+        //this.refreshWidgetPositions();
         this.worldSelected(null);
     }
 
-    private void addButtons(Consumer<WorldListWidget.WorldEntry> playAction, WorldListWidget levelList) {
-        ScreenHelper.ButtonInfo[] mainList = new ScreenHelper.ButtonInfo[]{
-                new ScreenHelper.ButtonInfo(
-                        "Create New World",
-                        (btn) -> CreateWorldScreen.show(this.client, levelList::refresh),
-                        new ScreenHelper.ScreenPos(
-                                ScreenHelper.getRightOffset(ScreenHelper.BUTTON_WIDTH+ScreenHelper.BUTTON_PADDING),
-                                this.height - ScreenHelper.BUTTON_PADDING-ScreenHelper.BUTTON_HEIGHT
-                        )
-                )
-        };
+    private void addButtons() {
+        //this.selectButton = ButtonWidget.builder(LevelSummary.SELECT_WORLD_TEXT, button -> levelList.getSelectedAsOptional().ifPresent(playAction)).position(0, 100).build();
+        WorldListWidget levelList = this.levelList;
 
         this.selectButton = ScreenHelper.build(
                 new ScreenHelper.ButtonInfo(
                         LevelSummary.SELECT_WORLD_TEXT.getString(),
-                        (button) -> {
-                            levelList.getSelectedAsOptional().ifPresent(playAction);
-                        }
+                        button -> levelList.getSelectedAsOptional().ifPresent(playAction),
+                        ScreenHelper.getScreenRightListPos(0)
                 )
         ).build();
 
-        elements.addAll(ScreenHelper.buildList(mainList));
-        elements.add(this.selectButton);
+        //this.addDrawableChild(ButtonWidget.builder(Text.translatable("selectWorld.create"), button -> CreateWorldScreen.show(this.client, levelList::refresh)).build());
 
-        ScreenHelper.ButtonInfo[] rightList = new ScreenHelper.ButtonInfo[]{
-                new ScreenHelper.ButtonInfo(
-                        "Play",
-                        (btn) -> {levelList.getSelectedAsOptional().ifPresent(WorldListWidget.WorldEntry::play);}
-                ),
+        this.editButton = ScreenHelper.build(
                 new ScreenHelper.ButtonInfo(
                         "Edit",
-                        (btn) -> {levelList.getSelectedAsOptional().ifPresent(WorldListWidget.WorldEntry::edit);}
-                ),
+                        button -> levelList.getSelectedAsOptional().ifPresent(WorldListWidget.WorldEntry::edit),
+                        ScreenHelper.getScreenRightListPos(1)
+                )
+        ).build();
+
+        this.deleteButton = ScreenHelper.build(
                 new ScreenHelper.ButtonInfo(
                         "Delete",
-                        (btn) -> {levelList.getSelectedAsOptional().ifPresent(WorldListWidget.WorldEntry::deleteIfConfirmed);}
+                        button -> levelList.getSelectedAsOptional().ifPresent(WorldListWidget.WorldEntry::deleteIfConfirmed),
+                        ScreenHelper.getScreenRightListPos(2)
                 )
-        };
+        ).build();
 
-        elements.addAll(ScreenHelper.buildRightSideList(rightList));
+        this.recreateButton = ScreenHelper.build(
+                new ScreenHelper.ButtonInfo(
+                        "Recreate",
+                        button -> levelList.getSelectedAsOptional().ifPresent(WorldListWidget.WorldEntry::recreate),
+                        ScreenHelper.getScreenRightListPos(3)
+                )
+        ).build();
+
+        this.createButton = ScreenHelper.build(
+                        new ScreenHelper.ButtonInfo(
+                                "Create New World",
+                                button -> CreateWorldScreen.show(this.client, levelList::refresh),
+                                new ScreenHelper.ScreenPos(
+                                        ScreenHelper.getRightOffset(ScreenHelper.BUTTON_WIDTH+ScreenHelper.BUTTON_PADDING),
+                                        this.height - (
+                                                ScreenHelper.BUTTON_PADDING + ScreenHelper.BUTTON_HEIGHT
+                                                )
+                                )
+                        )
+                ).build();
     }
 
-    private void worldSelected(@Nullable LevelSummary levelSummary) {
-        if (levelSummary == null) {return;}
+    private ButtonWidget createDebugRecreateButton() {
+        return ButtonWidget.builder(
+                        Text.literal("DEBUG recreate"),
+                        button -> {
+                            try {
+                                String string = "DEBUG world";
+                                if (this.levelList != null && !this.levelList.children().isEmpty()) {
+                                    WorldListWidget.Entry entry = (WorldListWidget.Entry)this.levelList.children().getFirst();
+                                    if (entry instanceof WorldListWidget.WorldEntry worldEntry && worldEntry.getLevelDisplayName().equals("DEBUG world")) {
+                                        worldEntry.delete();
+                                    }
+                                }
 
-        this.selectButton.setMessage(levelSummary.getSelectWorldText());
-
-        System.out.println(levelSummary.getName());
+                                LevelInfo levelInfo = new LevelInfo(
+                                        "DEBUG world",
+                                        GameMode.SPECTATOR,
+                                        false,
+                                        Difficulty.NORMAL,
+                                        true,
+                                        new GameRules(DataConfiguration.SAFE_MODE.enabledFeatures()),
+                                        DataConfiguration.SAFE_MODE
+                                );
+                                String string2 = PathUtil.getNextUniqueName(this.client.getLevelStorage().getSavesDirectory(), "DEBUG world", "");
+                                this.client.createIntegratedServerLoader().createAndStart(string2, levelInfo, DEBUG_GENERATOR_OPTIONS, WorldPresets::createDemoOptions, this);
+                            } catch (IOException var5) {
+                                LOGGER.error("Failed to recreate the debug world", (Throwable)var5);
+                            }
+                        }
+                )
+                .width(72)
+                .build();
     }
 
     @Override
     protected void refreshWidgetPositions() {
+        this.init();
+        //this.addButtons();
     }
 
     @Override
-    public void render(DrawContext context, int mouseX, int mouseY, float tickDelta) {
-        super.render(context, mouseX, mouseY, tickDelta);
+    protected void setInitialFocus() {
+        if (this.searchBox != null) {
+            this.setInitialFocus(this.searchBox);
+        }
     }
 
     @Override
     public void close() {
         this.client.setScreen(this.parent);
+    }
+
+    public void worldSelected(@Nullable LevelSummary levelSummary) {
+        if (this.selectButton != null && this.editButton != null && this.recreateButton != null && this.deleteButton != null) {
+            if (levelSummary == null) {
+                this.selectButton.setMessage(LevelSummary.SELECT_WORLD_TEXT);
+                this.selectButton.active = false;
+                this.editButton.active = false;
+                this.recreateButton.active = false;
+                this.deleteButton.active = false;
+            } else {
+                this.selectButton.setMessage(levelSummary.getSelectWorldText());
+                this.selectButton.active = levelSummary.isSelectable();
+                this.editButton.active = levelSummary.isEditable();
+                this.recreateButton.active = levelSummary.isRecreatable();
+                this.deleteButton.active = levelSummary.isDeletable();
+            }
+        }
+    }
+
+    @Override
+    public void removed() {
+        if (this.levelList != null) {
+            this.levelList.children().forEach(WorldListWidget.Entry::close);
+        }
     }
 }

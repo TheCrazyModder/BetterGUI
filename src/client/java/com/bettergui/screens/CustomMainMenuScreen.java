@@ -1,16 +1,13 @@
 package com.bettergui.screens;
 
-import com.bettergui.AssetLoader;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.gl.RenderPipelines;
 import net.minecraft.client.gui.DrawContext;
 import net.minecraft.client.gui.LogoDrawer;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.multiplayer.MultiplayerScreen;
 import net.minecraft.client.gui.screen.option.OptionsScreen;
-import net.minecraft.client.gui.screen.world.SelectWorldScreen;
 import net.minecraft.client.gui.widget.*;
 import net.minecraft.text.Text;
 
@@ -35,7 +32,7 @@ public class CustomMainMenuScreen extends Screen {
                 new ScreenHelper.ButtonInfo(
                         "Singleplayer",
                         (btn) -> {
-                            this.client.setScreen(new TempTestWoldScreen(this));
+                            this.client.setScreen(new CustomWorldSelectScreen(this));
                         }
                 ),
                 new ScreenHelper.ButtonInfo(
