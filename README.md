@@ -7,7 +7,10 @@ A fabric mod for minecraft 1.21.10 to update the menu screens GUIs to look more 
 </br>
 <h2>World Select Screen</h2>
 <img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/737e951e-c669-4e78-a604-7bce31e13b8a" />
-
+</br>
+<h2>Multiplayer Server Screen</h2>
+<img width="2560" height="1440" alt="image" src="https://github.com/user-attachments/assets/93f75443-518b-4e86-ba01-6580ef6fb8ea" />
+</br>
 
 <h2>Dependencies</h2>
 None
